@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
 import 'package:equatable/equatable.dart';
@@ -11,11 +10,9 @@ import 'package:ot_app/routes/route_fade.dart';
 import 'package:ot_app/screens/main_navigation_bar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../components/custom_easy.dart';
 import '../../config/app_config.dart';
 // import '../../widgets/layout/main_menu.dart';
-
 part 'check_in_out_event.dart';
 part 'check_in_out_state.dart';
 
@@ -30,6 +27,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
           ifOut: false,
           lat: 0.0,
           lng: 0.0,
+          apiLat: 0.0,
+          apiLng: 0.0,
           scanText: "",
         )) {
     on<StreamLocation>((event, emit) async {
@@ -47,7 +46,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
             forceLocationManager: false,
             intervalDuration: const Duration(seconds: 5),
           );
-        } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
+        } else if (defaultTargetPlatform == TargetPlatform.iOS ||
+            defaultTargetPlatform == TargetPlatform.macOS) {
           locationSettings = AppleSettings(
             accuracy: LocationAccuracy.high,
             activityType: ActivityType.fitness,
@@ -61,14 +61,79 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
             distanceFilter: 25, // ความถี่ในการรับตำแหน่ง
           );
         }
-        Geolocator.getPositionStream(locationSettings: locationSettings).listen((Position? position) async {
-          double distance = calculateDistance(14.980237252731254, 102.07856504186218, position!.latitude, position.longitude);
-          add(DistanceEvent(
-            distance: distance,
-            lat: position.latitude,
-            lng: position.longitude,
-          ));
-        });
+
+        final prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('token');
+        final dio = Dio();
+        try {
+          final response = await dio.get(
+            "$apiProduction/setting",
+            options: Options(
+              headers: {
+                "Authorization": "Bearer $token",
+              },
+              contentType: Headers.formUrlEncodedContentType,
+              responseType: ResponseType.json,
+              followRedirects: false,
+              validateStatus: (_) => true,
+            ),
+          );
+          if (response.statusCode == 200) {
+            print('lat lng api: ' +
+                response.data['office_location']['lat'] +
+                ',' +
+                response.data['office_location']['lon']);
+
+            // Geolocator.getPositionStream(locationSettings: locationSettings)
+            //     .listen((Position? position) async {
+            //   double distance = calculateDistance('14.962456', 102.075927,
+            //       position!.latitude, position.longitude);
+            //   add(DistanceEvent(
+            //     distance: distance,
+            //     lat: position.latitude,
+            //     lng: position.longitude,
+            //   ));
+            // });
+
+            emit(state.copyWith(
+                apiLat: double.parse(
+                    response.data['office_location']['lat'].toString()),
+                apiLng: double.parse(
+                    response.data['office_location']['lon'].toString())));
+            // Position positionx = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+            // print(positionx.latitude);
+            Geolocator.getPositionStream(locationSettings: locationSettings)
+                .listen((Position? position) async {
+                  print(position!.latitude + position.longitude);
+              double distance = calculateDistance(state.apiLat, state.apiLng,
+                  position.latitude, position.longitude);
+              add(DistanceEvent(
+                distance: distance,
+                // position iv
+                lat: position.latitude,
+                lng: position.longitude,
+              ));
+            });
+          } else {
+            eazyShowError(title: 'ตำแหน่ง!\n${response.statusMessage}');
+          }
+        } on Exception catch (e) {
+          eazyShowError(title: 'ตำแหน่ง!\n${e}');
+          print("Exception $e");
+        }
+
+        //!  calculate here -->  ///-----------------------------------------------------
+        // Geolocator.getPositionStream(locationSettings: locationSettings)
+        //     .listen((Position? position) async {
+        //   double distance = calculateDistance(
+        //       state.apiLat, state.apiLng, position!.latitude, position.longitude);
+        //   add(DistanceEvent(
+        //     distance: distance,
+        //     lat: position.latitude,
+        //     lng: position.longitude,
+        //   ));
+        // });
+        //!  calculate here -->  ///-----------------------------------------------------
       } else {
         print("Location Permission is denied.");
         showGeneralDialog(
@@ -79,7 +144,7 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
           pageBuilder: (ctx, anim1, anim2) => AlertDialog(
             title: const Text('แอปพลิเคชั่นต้องการเข้าถึงตำแหน่ง'),
             content: const Text(
-                'ต้องการอนุญาตการเข้าถึงตำแหน่งตลอดเวลา เพื่อเปิดใช้งาน\nกดยืนยัน->สิทธิการเข้าถึง->ตำแหน่ง->อนุญาติตลอดเวลา กลับมาที่แอปแล้วกดลองใหม่'),
+                'ต้องการอนุญาตการเข้าถึงตำแหน่งตลอดเวลา เพื่อเปิดใช้งาน\nกดยืนยัน->สิทธิการเข้าถึง->ตำแหน่ง->อนุญาตตลอดเวลา กลับมาที่แอปแล้วกดลองใหม่'),
             elevation: 2,
             actions: [
               TextButton(
@@ -89,7 +154,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
                   //   MaterialPageRoute(builder: (context) => MainMenuBar()), // this mymainpage is your page to refresh
                   //   (Route<dynamic> route) => false,
                   // );
-                  Navigator.pushReplacement(event.context, RouteFade.noSlide(const MainNavigationBar()));
+                  Navigator.pushReplacement(event.context,
+                      RouteFade.noSlide(const MainNavigationBar()));
                 },
                 child: const Text(
                   'ลองใหม่',
@@ -105,7 +171,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
             ],
           ),
           transitionBuilder: (ctx, anim1, anim2, child) => BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 4 * anim1.value, sigmaY: 4 * anim1.value),
+            filter: ImageFilter.blur(
+                sigmaX: 4 * anim1.value, sigmaY: 4 * anim1.value),
             child: FadeTransition(
               child: child,
               opacity: anim1,
@@ -113,6 +180,7 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
           ),
           context: event.context,
         );
+
         return null;
       }
     });
@@ -145,7 +213,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
         if (response.statusCode == 200) {
           if (response.data["data"].length != 0) {
             if (response.data["data"]["check_in"] != null) {
-              DateTime check_in = DateTime.parse(response.data["data"]["check_in"]);
+              DateTime check_in =
+                  DateTime.parse(response.data["data"]["check_in"]);
               emit(state.copyWith(
                 checkIn: check_in,
                 checkBtn: true,
@@ -153,7 +222,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
               ));
             }
             if (response.data["data"]["check_out"] != null) {
-              DateTime check_out = DateTime.parse(response.data["data"]["check_out"]);
+              DateTime check_out =
+                  DateTime.parse(response.data["data"]["check_out"]);
               emit(state.copyWith(
                 checkOut: check_out,
                 checkBtn: false,
@@ -162,7 +232,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
             }
           }
         } else {
-          eazyShowError(title: 'Something went wrong!\n${response.statusMessage}');
+          eazyShowError(
+              title: 'Something went wrong!\n${response.statusMessage}');
         }
       } on Exception catch (e) {
         eazyShowError(title: 'Something went wrong!\n${e}');
@@ -199,7 +270,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
           if (response.data["status"] == true) {
             add(LoadCheckIn());
           } else {
-            eazyShowError(title: 'Something went wrong!\n${response.statusMessage}');
+            eazyShowError(
+                title: 'Something went wrong!\n${response.statusMessage}');
           }
         } on Exception catch (e) {
           eazyShowError(title: 'Something went wrong!\n${e}');
@@ -228,7 +300,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
           if (response.data["status"] == true) {
             add(LoadCheckIn());
           } else {
-            eazyShowError(title: 'Something went wrong!\n${response.statusMessage}');
+            eazyShowError(
+                title: 'Something went wrong!\n${response.statusMessage}');
           }
         } on Exception catch (e) {
           eazyShowError(title: 'Something went wrong!\n${e}');
@@ -247,6 +320,8 @@ class CheckInOutBloc extends Bloc<CheckInOutEvent, CheckInOutState> {
 double calculateDistance(lat1, lon1, lat2, lon2) {
   var p = 0.017453292519943295;
   var c = cos;
-  var a = 0.5 - c((lat2 - lat1) * p) / 2 + c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+  var a = 0.5 -
+      c((lat2 - lat1) * p) / 2 +
+      c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
   return 12742 * asin(sqrt(a));
 }

@@ -29,7 +29,7 @@ class _PageCheckState extends State<PageCheck> {
 
   MapController? _mapController;
 
-  LatLng companyLocation = const LatLng(14.98033979332644, 102.0784790895414);
+  // LatLng companyLocation = const LatLng(14.962456, 102.075927);
 
   @override
   Widget build(BuildContext context) {
@@ -54,16 +54,19 @@ class _PageCheckState extends State<PageCheck> {
             tag: 'iconScan',
             child: IconButton(
               onPressed: () {
-                Navigator.push(context, RouteFade.slideBottom(PageScan()));
+                Navigator.push(
+                    context, RouteFade.slideBottom(const PageScan()));
               },
-              icon: const ImageIcon(AssetImage(AppIcons.scan), color: Colors.white),
+              icon: const ImageIcon(AssetImage(AppIcons.scan),
+                  color: Colors.white),
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(
               onPressed: () {
-                Navigator.push(context, RouteSide.slideLeft(const CheckHistory()));
+                Navigator.push(
+                    context, RouteSide.slideLeft(const CheckHistory()));
               },
               icon: const ImageIcon(
                 AssetImage(AppIcons.clock),
@@ -74,6 +77,7 @@ class _PageCheckState extends State<PageCheck> {
       ),
       body: BlocBuilder<CheckInOutBloc, CheckInOutState>(
         builder: (context, state) {
+          LatLng companyLocation = LatLng(state.apiLat, state.apiLng);
           return ListView(
             physics: const ClampingScrollPhysics(),
             children: [
@@ -90,25 +94,55 @@ class _PageCheckState extends State<PageCheck> {
                         zoom: 15,
                         enableScrollWheel: false,
                         keepAlive: true,
-                        interactiveFlags:
-                            InteractiveFlag.pinchZoom | InteractiveFlag.pinchMove, // ปิดการซูมและเลื่อนแผนที่ด้วยการสัมผัส
+                        interactiveFlags: InteractiveFlag.pinchZoom |
+                            InteractiveFlag
+                                .pinchMove, // ปิดการซูมและเลื่อนแผนที่ด้วยการสัมผัส
                       ),
                       nonRotatedChildren: [
-                        CircleLayer(
-                          circles: [
-                            CircleMarker(
-                                point: LatLng(state.lat, state.lng),
-                                radius: 15,
-                                color: AppColors.blue,
-                                useRadiusInMeter: true,
-                                borderStrokeWidth: 30,
-                                borderColor: AppColors.blue.withOpacity(0.2))
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: LatLng(state.lat, state.lng),
+                              width: 100,
+                              height: 100,
+                              builder: (context) => const Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.man_rounded,
+                                    color: AppColors.blue,
+                                    size: 30,
+                                  ),
+                                  Text(
+                                    'This is you !',
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        color: AppColors.blue,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
+                            ),
                           ],
                         ),
+
+                        // CircleLayer(
+                        //   circles: [
+                        //     CircleMarker(
+                        //         point: LatLng(state.lat, state.lng),
+                        //         radius: 15,
+                        //         color: AppColors.blue,
+                        //         useRadiusInMeter: true,
+                        //         borderStrokeWidth: 30,
+                        //         borderColor: AppColors.blue.withOpacity(0.2))
+                        //   ],
+                        // ),
                       ],
                       children: [
                         TileLayer(
-                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          urlTemplate:
+                              'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                           // userAgentPackageName: 'com.example.app',
                         ),
                         MarkerLayer(
@@ -120,7 +154,7 @@ class _PageCheckState extends State<PageCheck> {
                               builder: (context) => const Icon(
                                 Icons.location_on,
                                 color: AppColors.red,
-                                size: 30,
+                                size: 40,
                               ),
                             ),
                           ],
@@ -129,13 +163,15 @@ class _PageCheckState extends State<PageCheck> {
                           markers: [
                             Marker(
                               point: companyLocation,
-                              width: 200,
-                              height: 200,
+                              width: 100,
+                              height: 100,
                               builder: (context) => Container(
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.shade300.withOpacity(.5),
+                                  color: Colors.blue.shade300.withOpacity(.3),
+                                  //color: Colors.transparent,
+
                                   borderRadius: BorderRadius.circular(300),
                                 ),
                               ),
@@ -158,7 +194,8 @@ class _PageCheckState extends State<PageCheck> {
                       child: InkWell(
                         onTap: () {
                           _mapController!.move(companyLocation, 15.0);
-                          setState(() {});
+                          // setState(() {}
+                          // );
                         },
                         child: Container(
                           height: 70,
@@ -176,12 +213,15 @@ class _PageCheckState extends State<PageCheck> {
                             ],
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               const Icon(
                                 Icons.location_pin,
                                 color: AppColors.red,
-                                size: 39,
+                                size: 40,
+                              ),
+                              const SizedBox(
+                                width: 10,
                               ),
                               Container(
                                 width: w - 160,
@@ -198,7 +238,7 @@ class _PageCheckState extends State<PageCheck> {
                                       ),
                                     ),
                                     Text(
-                                      "369, 11 Soi Dechudom 6, ตำบลในเมือง อำเภอเมืองนครราชสีมา นครราชสีมา 30000",
+                                      "369/11 ซอยเดชอุดม 6, ตำบลในเมือง อำเภอเมืองนครราชสีมา นครราชสีมา 30000",
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 1,
                                       style: TextStyle(color: Colors.grey),
@@ -206,11 +246,11 @@ class _PageCheckState extends State<PageCheck> {
                                   ],
                                 ),
                               ),
-                              const ImageIcon(
-                                AssetImage(AppIcons.building),
-                                color: Colors.grey,
-                                size: 28,
-                              )
+                              // const ImageIcon(
+                              //   AssetImage(AppIcons.building),
+                              //   color: Colors.grey,
+                              //   size: 28,
+                              // )
                             ],
                           ),
                         ),
@@ -222,7 +262,9 @@ class _PageCheckState extends State<PageCheck> {
                       child: FloatingActionButton(
                         backgroundColor: AppColors.blue,
                         onPressed: () {
-                          _mapController!.move(LatLng(state.lat, state.lng), 15.0);
+                          print('sdf');
+                          _mapController!
+                              .move(LatLng(state.lat, state.lng), 15.0);
                         },
                         child: const Icon(Icons.my_location),
                       ),
@@ -253,115 +295,148 @@ class _PageCheckState extends State<PageCheck> {
               ),
               Container(
                 height: 550,
-                // decoration: const BoxDecoration(
-                //   color: Colors.white,
-                // ),
                 child: Container(
                   color: Colors.white,
-                  child: Column(
-                    children: [
-                      const Text(
-                        "เข้างาน ",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CardTime(
-                              title: (state.ifIn == true) ? "${state.checkIn.hour < 10 ? 0 : ""}${state.checkIn.hour}" : "--",
-                              color: Colors.green.withOpacity(0.1)),
-                          const Text(
-                            ':',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        const Text(
+                          "เวลาเข้างาน ",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CardTime(
+                                title: (state.ifIn == true)
+                                    ? "${state.checkIn.hour < 10 ? 0 : ""}${state.checkIn.hour}"
+                                    : "--",
+                                color: Colors.green.withOpacity(0.1)),
+                            const Text(
+                              ':',
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            CardTime(
+                                title: (state.ifIn == true)
+                                    ? "${state.checkIn.minute < 10 ? 0 : ""}${state.checkIn.minute}"
+                                    : "--",
+                                color: Colors.green.withOpacity(0.1)),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            const Text(
+                              "น.",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          "เวลาออกงาน",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CardTime(
+                              title: (state.ifOut == true)
+                                  ? "${state.checkOut.hour < 10 ? 0 : ""}${state.checkOut.hour}"
+                                  : "--",
+                              color: AppColors.red.withOpacity(.1),
+                            ),
+                            const Text(
+                              ':',
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            CardTime(
+                              title: (state.ifOut == true)
+                                  ? "${state.checkOut.minute < 10 ? 0 : ""}${state.checkOut.minute}"
+                                  : "--",
+                              color: AppColors.red.withOpacity(.1),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            const Text(
+                              "น.",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        Text(
+                            double.parse(state.distance) >= 0.1
+                                ? "ระยะห่างจากออฟฟิศ ${state.distance} กม."
+                                : 'กำลังอยู่ที่ออฟฟิศ',
+                            style: double.parse(state.distance) >= 0.1
+                                ? TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey)
+                                : TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.blue)),
+                        const SizedBox(height: 18),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                (state.checkBtn) ? AppColors.red : Colors.green,
+                            fixedSize: const Size(200, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(35),
+                            ),
                           ),
-                          CardTime(
-                              title: (state.ifIn == true) ? "${state.checkIn.minute < 10 ? 0 : ""}${state.checkIn.minute}" : "--",
-                              color: Colors.green.withOpacity(0.1)),
-                          // const Text(
-                          //   ':',
-                          //   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                          // ),
-                          // CardTime(
-                          //   title: (state.ifIn == true) ? "${state.checkIn.second}" : "--",
-                          //   color: AppColors.red.withOpacity(.1),
-                          // ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-                      const Text(
-                        "ออกงาน",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CardTime(
-                            title: (state.ifOut == true) ? "${state.checkOut.hour < 10 ? 0 : ""}${state.checkOut.hour}" : "--",
-                            color: AppColors.red.withOpacity(.1),
-                          ),
-                          const Text(
-                            ':',
-                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                          ),
-                          CardTime(
-                            title: (state.ifOut == true) ? "${state.checkOut.minute < 10 ? 0 : ""}${state.checkOut.minute}" : "--",
-                            color: AppColors.red.withOpacity(.1),
-                          ),
-                          // const Text(
-                          //   ':',
-                          //   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                          // ),
-                          // CardTime(
-                          //     title: (state.ifOut == true) ? "${state.checkOut.second}" : "--",
-                          //     color: AppColors.green.withOpacity(0.1)),
-                        ],
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        "ระยะห่างจากออฟฟิศ ${state.distance} กม.",
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 18),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: (state.checkBtn) ? AppColors.red : Colors.green,
-                          fixedSize: const Size(200, 50),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(35),
+                          onPressed: (double.parse(state.distance) <= 0.1 &&
+                                  state.ifOut == false)
+                              ? () {
+                                  DateFormat formatterDate =
+                                      DateFormat.yMMMEd();
+                                  DateFormat formatterTime = DateFormat.jm();
+                                  confirmModal(
+                                    context: context,
+                                    onConfirm: () {
+                                      context
+                                          .read<CheckInOutBloc>()
+                                          .add(CheckInTime(context: context));
+                                    },
+                                    title: (state.checkBtn == false)
+                                        ? "ยืนยันเวลาเข้าทำงาน"
+                                        : "ยืนยันเวลาออกงาน",
+                                    content:
+                                        "${formatterDate.format(state.checkIn)}\nเวลา ${formatterTime.format(state.checkIn)}",
+                                    titleColor: AppColors.blue,
+                                    textConfirmColor: Colors.white,
+                                    backgroundConfirmColor: Colors.green,
+                                    textCancelColor: Colors.grey,
+                                    backgroundCancelColor: Colors.grey.shade300,
+                                  );
+                                }
+                              : null,
+                          child: Text(
+                            (double.parse(state.distance) <= 0.1 &&
+                                    state.ifOut == false)
+                                ? (state.checkBtn == false)
+                                    ? "เข้างาน"
+                                    : "ออกงาน"
+                                : 'ออกงานแล้ว!',
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              fontStyle: FontStyle.normal,
+                            ),
                           ),
                         ),
-                        onPressed: (double.parse(state.distance) <= 0.1 && state.ifOut == false)
-                            ? () {
-                                DateFormat formatterDate = DateFormat.yMMMEd();
-                                DateFormat formatterTime = DateFormat.jm();
-
-                                confirmModal(
-                                  context: context,
-                                  onConfirm: () {
-                                    context.read<CheckInOutBloc>().add(CheckInTime(context: context));
-                                  },
-                                  title: (state.checkBtn == false) ? "ยืนยันเวลาเข้าทำงาน" : "ยืนยันเวลาออกงาน",
-                                  content: "${formatterDate.format(state.checkIn)}\nเวลา ${formatterTime.format(state.checkIn)}",
-                                  titleColor: AppColors.blue,
-                                  textConfirmColor: Colors.white,
-                                  backgroundConfirmColor: Colors.green,
-                                  textCancelColor: Colors.grey,
-                                  backgroundCancelColor: Colors.grey.shade300,
-                                );
-                              }
-                            : null,
-                        child: Text(
-                          (state.checkBtn == false) ? "เช็คอิน" : "เช็คเอ้าท์",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            fontStyle: FontStyle.normal,
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -394,11 +469,13 @@ void confirmModal({
         title: Center(
             child: Text(
           title,
-          style: TextStyle(color: titleColor, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: titleColor, fontSize: 22, fontWeight: FontWeight.bold),
         )),
         content: Text(
           content,
-          style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15),
+          style: const TextStyle(
+              color: Colors.grey, fontWeight: FontWeight.bold, fontSize: 15),
           textAlign: TextAlign.center,
         ),
         actions: [
@@ -410,10 +487,15 @@ void confirmModal({
                 child: Container(
                   width: 90,
                   padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(color: backgroundCancelColor, borderRadius: BorderRadius.circular(11)),
+                  decoration: BoxDecoration(
+                      color: backgroundCancelColor,
+                      borderRadius: BorderRadius.circular(11)),
                   child: Text(
                     'ยกลิก',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textCancelColor),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: textCancelColor),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -423,10 +505,15 @@ void confirmModal({
                 child: Container(
                   width: 90,
                   padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(color: backgroundConfirmColor, borderRadius: BorderRadius.circular(11)),
+                  decoration: BoxDecoration(
+                      color: backgroundConfirmColor,
+                      borderRadius: BorderRadius.circular(11)),
                   child: Text(
                     'ยืนยัน',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: textConfirmColor),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: textConfirmColor),
                     textAlign: TextAlign.center,
                   ),
                 ),

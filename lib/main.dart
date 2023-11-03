@@ -16,18 +16,17 @@ import 'package:ot_app/screens/login/page_login.dart';
 import 'package:ot_app/screens/login/page_login_pin.dart';
 import 'package:ot_app/screens/main_navigation_bar.dart';
 import 'package:ot_app/services/firebase_api.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '/utils/app_color.dart';
 import '/utils/notification_service.dart';
 import 'blocs/notification/notification_bloc.dart';
 
 String? checkToken, checkPin, checkAuthLocal;
-
+//! email chawanthon.wirajarnyaphan@compattana.com
 void main() async {
   Intl.defaultLocale = 'th';
   initializeDateFormatting();
+
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   // WidgetsFlutterBinding.ensureInitialized();
   widgetsBinding;
@@ -37,6 +36,8 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   checkToken = await prefs.getString('token');
   checkPin = await prefs.getString('pin_auth');
+
+  print('token: -------------' + checkToken.toString());
 
   print(checkPin);
   ErrorWidget.builder = (FlutterErrorDetails details) => Material(
@@ -48,7 +49,6 @@ void main() async {
           ),
         ),
       );
-
   // init firebase
   await Firebase.initializeApp();
   await FirebaseApi().initNotification();

@@ -110,15 +110,23 @@ class _LoginPageState extends State<PageLogin> {
                       alignment: Alignment.centerRight,
                       child: GestureDetector(
                           onTap: () {
-                            Navigator.push(context, RouteSide.slideLeft(const PageForgotPassword()));
+                            Navigator.push(
+                                context,
+                                RouteSide.slideLeft(
+                                    const PageForgotPassword()));
                           },
                           child: const Text(
                             "ลืมรหัสผ่าน?",
-                            style: TextStyle(color: Color.fromARGB(255, 147, 195, 199), fontWeight: FontWeight.w500, fontSize: 16),
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 147, 195, 199),
+                                fontWeight: FontWeight.w500,
+                                fontSize: 16),
                           )),
                     ),
                     const SizedBox(height: 10),
-                    (state.check == false) ? const SizedBox(height: 5) : AlertErrorLogin(title: "อีเมลหรือรหัสไม่ถูกต้อง"),
+                    (state.check == false)
+                        ? const SizedBox(height: 5)
+                        : AlertErrorLogin(title: "อีเมลหรือรหัสไม่ถูกต้อง"),
                     const SizedBox(height: 10),
                     (state.loading)
                         ? const SpinKitChasingDots(
@@ -133,11 +141,14 @@ class _LoginPageState extends State<PageLogin> {
                                 borderRadius: BorderRadius.circular(35),
                               ),
                             ),
+                            //!
                             onPressed: () {
                               context.read<LoginBloc>().add(CheckLogin(
-                                    context,
-                                    usernameController.text,
-                                    passwordController.text,
+                                  context,
+                                  // 'chawanthon.wirajarnyaphan@compattana.com',
+                                  // 'Zeptember1997.'
+                                  usernameController.text,
+                                  passwordController.text,
                                   ));
                             },
                             child: const Text(

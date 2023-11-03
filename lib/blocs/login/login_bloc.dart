@@ -39,16 +39,16 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
             await Navigator.push(event.context, RouteFade.noSlide(MainNavigationBar()));
           } else {
             print('fail');
-            eazyShowError(title: 'Something went wrong!\n${response.statusMessage}');
+            eazyShowError(title: 'อีเมล์หรือรหัสผ่านไม่ถูกต้อง!\n${response.statusMessage}');
             emit(state.copyWith(check: true, loading: false));
           }
         } on Exception catch (e) {
-          eazyShowError(title: 'Something went wrong!\n${e}');
+          eazyShowError(title: 'อีเมล์หรือรหัสผ่านไม่ถูกต้อง!\n${e}');
           print("Exception $e");
           emit(state.copyWith(check: true, loading: false));
         }
       } else {
-        EasyLoading.showToast('Plase enter email and password!');
+        EasyLoading.showToast('โปรดกรอกอีเมล์และรหัสผ่าน!');
         emit(state.copyWith(check: true, loading: false));
       }
     });

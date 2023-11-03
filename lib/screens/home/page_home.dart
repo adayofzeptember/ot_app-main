@@ -89,17 +89,22 @@ class PageHome extends StatelessWidget {
                                       radius: 40,
                                     ),
                                   ),
-                            const SizedBox(width: 18),
+                            const SizedBox(width: 10),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.start,
+
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const SizedBox(height: 10),
                                 (state.firstname != "")
-                                    ? Text(
-                                        "${state.firstname} ${state.lastname}",
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
-                                      )
+                                    ? SizedBox(
+                                      width: 200,
+                                      child: Text(
+                                          "${state.firstname} ${state.lastname}",
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.white),
+                                        ),
+                                    )
                                     : SizedBox(
                                         width: 200,
                                         height: 35,
@@ -110,10 +115,22 @@ class PageHome extends StatelessWidget {
                                         ),
                                       ),
                                 (state.firstname != "")
-                                    ? Text(
-                                        state.segment,
-                                        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.softBlue),
-                                      )
+                                    ? Row(
+                                      children: [
+                                        //Image.asset('assets/image/logo.png', height: 20,),
+                                        // Icon(Icons.computer_rounded, color: AppColors.softBlue,),
+                                        (state.segment == 'Mobile App Developer')
+                                        ?Icon(Icons.phone_iphone_rounded, color: AppColors.softBlue,)
+
+
+                                        : Icon(Icons.computer_rounded, color: AppColors.softBlue,),
+                                        SizedBox(width: 3,),
+                                        Text(
+                                            state.segment,
+                                            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: AppColors.softBlue),
+                                          ),
+                                      ],
+                                    )
                                     : SizedBox(
                                         width: 130,
                                         height: 35,

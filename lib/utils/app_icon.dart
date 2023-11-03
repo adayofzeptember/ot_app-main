@@ -19,4 +19,7 @@ class AppIcons {
   static const eyeSlash = "$assets/eye_slash.png";
   static const eidtPen = "$assets/edit_pen.png";
   static const eidtUser = "$assets/edit_user.png";
+  static const logo = "$assets/logo.png";
+  static const man2 = "$assets/man2.png";
+    static const sleep = "$assets/sleep.png";
 }

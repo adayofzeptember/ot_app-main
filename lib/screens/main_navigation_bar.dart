@@ -8,9 +8,6 @@ import 'package:ot_app/screens/home/page_home.dart';
 import 'package:ot_app/screens/setting/page_setting.dart';
 import 'package:ot_app/utils/app_color.dart';
 import 'package:ot_app/utils/app_icon.dart';
-
-import 'package:socket_io_client/socket_io_client.dart' as IO;
-
 import '../blocs/account/account_bloc.dart';
 import '../blocs/calendar/calendar_bloc.dart';
 import '../blocs/check_in_out/check_in_out_bloc.dart';
@@ -24,25 +21,7 @@ class MainNavigationBar extends StatefulWidget {
 
 class _MainNavigationBarState extends State<MainNavigationBar> {
   int _selectedIndex = 0;
-  late IO.Socket socket;
-  // void load() async {
-  //   print(FlutterAppBadger.isAppBadgeSupported());
-  //   socket = IO.io('http://192.168.1.147:3000', <String, dynamic>{
-  //     'transports': ['websocket'],
-  //     'autoConnect': false,
-  //   });
-  //   socket.connect();
-  //   socket.on('chat_message', (data) async {
-  //     print("object");
-  //     // showNotification();
-  //     NotificationService().showNotifications();
-  //     await FlutterAppBadger.updateBadgeCount(1);
-
-  //     setState(() {});
-  //   });
-  //   socket.onConnectError((_) => print('onConnectError $_'));
-  // }
-
+ 
   @override
   void initState() {
     super.initState();
@@ -92,6 +71,8 @@ class _MainNavigationBarState extends State<MainNavigationBar> {
               highlightColor: Colors.transparent,
             ),
             child: BottomNavigationBar(
+               
+              unselectedLabelStyle: TextStyle(fontFamily: 'ibmx'),
               onTap: (index) {
                 // เมื่อกดที่รายการใน Navigation Bar
                 setState(() {
@@ -106,32 +87,33 @@ class _MainNavigationBarState extends State<MainNavigationBar> {
                   backgroundColor: Colors.amber,
                   icon: const Padding(
                     padding: EdgeInsets.all(12),
-                    child: ImageIcon(AssetImage(AppIcons.home)),
+                    child: ImageIcon(AssetImage(AppIcons.home), size: 25,),
                   ),
                   activeIcon: ActiveIcon(AppIcons.active_home),
-                  label: 'HOME',
+                  label: 'หน้าหลัก',
                 ),
                 BottomNavigationBarItem(
                   icon: const Padding(
                     padding: EdgeInsets.all(12),
-                    child: ImageIcon(AssetImage(AppIcons.check)),
+                    
+                    child: ImageIcon(AssetImage(AppIcons.sleep), color: Colors.grey, size: 30,),
                   ),
-                  activeIcon: ActiveIcon(AppIcons.active_check),
-                  label: 'CHECK',
+                  activeIcon: ActiveIcon(AppIcons.man2),
+                  label: 'เข้า-ออกงาน',
                 ),
                 BottomNavigationBarItem(
                   icon: const Padding(
                     padding: EdgeInsets.all(12),
-                    child: ImageIcon(AssetImage(AppIcons.setting)),
+                    child: ImageIcon(AssetImage(AppIcons.setting), size: 25,),
                   ),
                   activeIcon: ActiveIcon(AppIcons.active_setting),
-                  label: 'SETTING',
+                  label: 'ตั้งค่า',
                 ),
               ],
               unselectedFontSize: 14,
               selectedFontSize: 14,
               fixedColor: AppColors.textBlue,
-              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+              selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Prompt'),
               backgroundColor: Colors.white,
               currentIndex: _selectedIndex,
             ),
